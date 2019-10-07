@@ -1,49 +1,25 @@
-install.package("ggplot2")
 library(ggplot2)
+g <- ggplot(midwest, aes(x=area, y = poptotal)) + geom_point() + geom_smooth(method = "lm")
+g
 
-data()
-data("iris")
-head(iris)
-summary(iris)
+summary(midwest)
 
-plot(iris)
-plot(iris$Petal.Length, iris$Sepal.Width)
+gg <- ggplot(midwest, aes(x=area, y = poptotal)) +
+  geom_point(aes(col=state), size = 3, shape = 21) +
+  geom_smooth(method = "lm", col = "firebrick", size = 1) +
+  coord_cartesian(xlim = c(0,0.1), ylim=c(0,1000000)) +
+  labs(title = "Area vs Population", subtitle= "From midwest dataset",
+       y = "Population", x = "Area", caption = "Midwest Demographics")
+gg
+data("midwest")
+summary(midwest)
+attach(midwest)
+boxplot(area~county)
 
-ggplot(iris, aes(x = Petal.Length, y = Sepal.Width)) +
-  geom_point()
+df<- data.frame(midwest$county, midwest$percasian, midwest$percollege)
+typeof(df)
 
-
-ggplot(iris, aes(x = Petal.Length, y = Sepal.Width, col = Species)) +
-  geom_point()
-
-ggplot(iris, aes(x = Petal.Length, y = Sepal.Width, col = Species, size = Petal.Width, )) +
-  geom_point()
-
-firstplot <- ggplot(iris, aes(Species, Sepal.Length)) +
-  geom_bar(stat = "summary", fun.y = "median", fill = "magenta") +
-  geom_point(position = position_jitter(0.2), shape = 21, size = 3)
-
-firstplot
-
-#
-summary(InsectSprays)
-       
-insectplot = ggplot(InsectSprays, aes( x = spray, y = count, fill = spray)) +
-  geom_bar(stat = "summary", fun.y = "mean",) +
-  geom_boxplot(fill = "white") +
-  geom_point()
-
-insectplot
-
-
-
-install.packages("statisticalModeling")
-library(statisticalModeling)
-
-
-
-
-
+t.test(df$midwest.percasian, df$midwest.percollege)
 
 
 
