@@ -30,6 +30,14 @@ taxonomytable <- otu %>% select(taxonomy)
 taxonomyseparated <- separate(taxonomytable,  col = taxonomy, into = c("kingdom","phylum", "class", "order", "family", "genus", "species"), sep ="; ")
 View(taxonomyseparated)
 
+tidydata <- subset(otu %>%
+  gather(key="sample", value="count",X26Gt.48:X10Nr.21), count>0)
+
+## Still need to finalize what I want to plot, need to fix up table as well
+tidyplot <- ggplot(tidydata, aes(x = OTU_ID, y = count)) + geom_point() + 
+                     geom_smooth(method = "lm")
+tidyplot
+
 nrow(taxonomytable)
 ncol(taxonomytable)
 
