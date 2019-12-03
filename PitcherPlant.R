@@ -11,17 +11,8 @@ tidydata <- data %>%
 # https://www.analyticsvidhya.com/blog/2019/05/beginner-guide-tidyverse-most-powerful-collection-r-packages-data-science/
 # creating tidy data: https://rstudio-pubs-static.s3.amazonaws.com/282405_e280f5f0073544d7be417cde893d78d0.html 
 
-##observed_species_16s_6500.txt dataset
-path <- file.path("~", "desktop", "observed_species_16s_6500.txt")
-path
-
-a <- read.table(path, header = TRUE, sep = ",", stringsAsFactors = TRUE)
-a ## q1- what does this data mean??
 
 ## dataset 2, 16S OTU Datatable
-
-path2 <- file.path("~", "desktop", "otu_table_16s_obs10_bittleston.txt")
-path2
 
 otu <- read.table(path2, header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 otu
@@ -33,10 +24,25 @@ View(taxonomyseparated)
 tidydata <- subset(otu %>%
   gather(key="sample", value="count",X26Gt.48:X10Nr.21), count>0)
 
-## Still need to finalize what I want to plot, need to fix up table as well
-tidyplot <- ggplot(tidydata, aes(x = OTU_ID, y = count)) + geom_point() + 
-                     geom_smooth(method = "lm")
+tidydata <- slice(tidydata, 1:122)
+
+##plot gets a little messy, as there are 122 rows of data, maybe slice into sets of
+##10 and replot?
+tidyplot <- ggplot(tidydata, aes(x = OTU_ID, y = count)) + geom_col(color = "black", fill = "darkred") +
+  labs(x = "A certain OTU_ID", y = "Count", title = "The X26Gt.48 sample was found most frequently in which OTU?")
 tidyplot
+
+
+
+
+
+
+
+
+
+
+
+
 
 nrow(taxonomytable)
 ncol(taxonomytable)
