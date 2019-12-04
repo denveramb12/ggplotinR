@@ -21,6 +21,20 @@ taxonomytable <- otu %>% select(taxonomy)
 taxonomyseparated <- separate(taxonomytable,  col = taxonomy, into = c("kingdom","phylum", "class", "order", "family", "genus", "species"), sep ="; ")
 View(taxonomyseparated)
 
+tidydata <- data %>%
+  gather(key="sample", value="count",X26Gt.48:X10Nr.21)
+
+# Redoing some of these later analyses in tidyverse.
+tidydata %>%
+  filter(count>0) %>%
+  filter(sample=="X26Gt.48") %>%
+  arrange(desc(count)) %>%
+  mutate(otunum=row_number()) %>%
+  mutate(relabundance=count/sum(count)) %>%
+  ggplot() +
+  geom_point(aes(x=otunum, y=relabundance))
+
+
 tidydata <- subset(otu %>%
   gather(key="sample", value="count",X26Gt.48:X10Nr.21), count>0)
 
