@@ -25,6 +25,7 @@ tidydata <- subset(otu %>%
   gather(key="sample", value="count",X26Gt.48:X10Nr.21), count>0)
 
 tidydata <- slice(tidydata, 1:122)
+max(tidydata$count, na.rm= TRUE)
 
 ##plot gets a little messy, as there are 122 rows of data, maybe slice into sets of
 ##10 and replot?
