@@ -1,0 +1,67 @@
+---
+title: "Feb11Final"
+author: "Arun Balaji"
+date: "2/10/2020"
+output: html_document
+---
+For the week of Feb4th to Feb11th, I was tasked with finishing answering the questions from the previous week's analyses. 1) Plotting the number of samples from each subject on different sequencing runs 2) Finding the average weight if the 4 subjects 3) plotting a timeline of samples for each of the four pilot subjects relative to antibiotic treatment. Generally, what I found in this small sample is that there are some holes in the data (assuming my coding didn't "create" any holes). One of the subjects didn't have weight tracked, one didn't have Abx_RelDay, among more. It was helpful to actually look at the data to solve these issues. Initially, I had some trouble figuring out what functions I needed to apply for the analyses and I had some basic syntax issues, which I have all fixed. I also had some trouble working with rmarkdown in the beginning, as it gave me some issues reading the dataset, so I had to adjust the pathway. Overall, though, the analyses went pretty well and I learned a lot throughout this process. I feel pretty comfortable working with the data moving forward.
+
+```{r setup, include=FALSE}
+library(phyloseq)
+library(tidyverse)
+data <- readRDS("/Users/arunbalaji/Documents/GitHub/ggplotinR/antibiotics/ps0995_4alpha_29Sep2019.rds")
+pilotsamples <- (sample_data(data) %>%
+                   filter(Subject %in% c("DBU","DBV","EAQ","EBF")))$Meas_ID
+data <- prune_samples(pilotsamples, data)
+data <- prune_taxa(taxa_sums(data) > 0,data)
+
+
+```
+
+```{r, warning = FALSE}
+groupDF <-group_by(sample_data(data), Subject)
+groupDF<- as.data.frame(groupDF)
+
+DBU <- filter(groupDF, Subject == "DBU", Weight >0)%>%mutate(rown=row_number())
+DBV <- filter(groupDF, Subject == "DBV")%>%mutate(rown = row_number()) ##Weight not tracked for DBV Subject
+EAQ <- filter(groupDF, Subject == "EAQ", Weight >0)
+EBF <- filter(groupDF, Subject == "EBF", Weight >0)
+Avgweight <- ((sum(DBU$Weight)/nrow(DBU)) + (sum(EAQ$Weight)/nrow(EAQ))+
+    (sum(EBF$Weight)/nrow(EBF)))/3 
+
+# Do this with group_by
+sample_data(data) %>% group_by(Subject) %>% summarize(MeanWeight=mean(Weight))
+```
+
+
+The average weight of the subjects is `r Avgweight `
+
+
+
+The following plots map the "Abx_RelDay" characteristic of the data, a variable that tracks when data was taken in reference to the antibiotic treatment. An arbitrary value of 1 was chosen as the y-coordinate so that the scatter plot could be plotted. Honestly, I had some trouble deciding what type of plot to do for this one, so I went for the simplest one.
+
+```{r, echo=FALSE}
+relDBV <- ggplot(DBV, aes(x=Abx_RelDay, y=1)) + geom_point()
+relDBV
+relEAQ <- ggplot(EAQ, aes(x=Abx_RelDay, y= 1)) + geom_point()
+relEAQ
+relEBF <- ggplot(EBF, aes(x=Abx_RelDay, y =1)) + geom_point()
+relEBF
+
+# Do this with facets.
+sample_data(data) %>% ggplot() + geom_point(aes(x=Abx_RelDay, y=1)) + facet_wrap(~Subject)
+```
+
+The following plots are for the sequencing runs for 3 subjects, DBV, DBU, and EAQ, because it was not tracked on the EBF subject. Each subject had only 1 type of sequencing run, hence one bar.
+
+```{r, echo=FALSE}
+DBVRun <- ggplot(DBV, aes(x= DBV$Sequencing_Run))+ geom_bar()
+DBVRun
+DBURun <- ggplot(DBU, aes(x= DBU$Sequencing_Run))+ geom_bar()
+DBURun
+EAQRun <- ggplot(EAQ, aes(x= EAQ$Sequencing_Run))+ geom_bar()
+EAQRun
+
+# Do this with facets.
+sample_data(data) %>% ggplot() + geom_bar(aes(x=Sequencing_Run)) + facet_wrap(~Subject)
+```
