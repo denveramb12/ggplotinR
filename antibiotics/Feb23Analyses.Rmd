@@ -1,0 +1,40 @@
+---
+title: "Feb23Analyses"
+author: "Arun Balaji"
+date: "2/24/2020"
+output: html_document
+---
+
+For the week leading up to our meeting on Feb 24th I spent a lot of time learning how to make the graphs featured on David A. Relman and Les Dethlefsen's research. This week I primarily focused on the heat map, then moved to the line graph towards the end of my time. For the heat map, I initially had some issues with the dataset being too big (issue documented well in the emails =) ).
+
+To solve this issue, I focused on making the heat map for only the four pilot samples.
+
+```{r setup, include = FALSE}
+library(phyloseq)
+library(tidyverse)
+
+
+data <- readRDS("/Users/arunbalaji/Documents/GitHub/ggplotinR/antibiotics/ps0995_4alpha_29Sep2019.rds")
+pilotsamples <- (sample_data(data) %>%
+                   filter(Subject %in% c("DBU","DBV","EAQ","EBF")))$Meas_ID
+data <- prune_samples(pilotsamples, data)
+data <- prune_taxa(taxa_sums(data) > 0,data)
+```
+
+Below is a chunk of code I think to be pretty cool, actually, as it filters out for the 331 most abundant Bacteria taxa across all samples. (found in joey711's tutorial). I chose the number 331 because when I started plotting the line graph, which is Figure 2, it gave me some issues in having too little data (not enough x and y to correlate with eachother), so I decided to just make them equal at 331.
+```{r, warning = FALSE}
+gpt <- subset_taxa(data, Kingdom=="Bacteria")
+gpt <- prune_taxa(names(sort(taxa_sums(data),TRUE)[1:331]), gpt)
+```
+
+
+Below is the current version of my heat map plot. It is very simple with the default specifications, with Samples tracked on the X axis and OTU tracked on the y axis. For starters, I see a few issues with this plot. First, I don't think facet wrap is the appropriate function to use for this as I notice in the research paper, sample by sample are placed next to each other, like a line, instead of stacked. Secondly, I can't seem to get the Genus to be tracked on the y-axis. Again, I followed joey711's tutorial, which led me to adding "Genus" after the gpt parameter in plot_heatmap(), which led me to a "Attempt to access ordination coordinates for sample ordering failed. Using default sample ordering” error. 
+```{r, echo = TRUE, warning = FALSE}
+plot_heatmap(gpt) + facet_wrap(~Subject)
+```
+
+Finally, here is the beginning of the line graph. Obviously it needs some work, specifically in the y-coordinate. I need to find out how to track the number of unique refOTU for any given day on Abx_RelDay. As detailed in the email, I tried to refer back to the PitcherPlant analyses for some reference, but I think I need some guidance on this part.
+```{r, eval=FALSE, echo = TRUE}
+sample_data(gpt)%>% ggplot() + geom_line(aes(x = Abx_RelDay, y =))+
+  facet_wrap(~Subject)
+```
