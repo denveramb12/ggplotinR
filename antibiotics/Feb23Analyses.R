@@ -9,7 +9,7 @@ pilotsamples <- (sample_data(data) %>%
 data <- prune_samples(pilotsamples, data)
 data <- prune_taxa(taxa_sums(data) > 0,data)
 gpt <- subset_taxa(data, Kingdom=="Bacteria")
-gpt <- prune_taxa(names(sort(taxa_sums(data),TRUE)[1:331]), data)
+gpt <- prune_taxa(names(sort(taxa_sums(data),TRUE)[1:331]), gpt)
 p <- plot_heatmap(gpt, "Genus") + facet_wrap(~Subject)
 p
 
@@ -17,6 +17,13 @@ p
 ##given abx_relDay
 sample_data(gpt)%>% ggplot() + geom_line(aes(x = Abx_RelDay, y =)))+
   facet_wrap(~Subject)
+
+
+
+
+
+
+
 
 
 
