@@ -1,0 +1,66 @@
+---
+title: "March1"
+author: "Arun Balaji"
+date: "3/2/2020"
+output: html_document
+---
+
+(working on figures 1,2,3)
+
+For the week leading up to our meeting on March 3rd I spent some time looking into ordination which could be the solution to the issue I've been getting in the heatmap plot. I'm still stuck on the heatmap- now looking at the error I've been getting, it's more obvious to me it has to do with ordination, though I'm lost on which technique to use. I used what I learned  to create a PCoA for the four pilot samples to keep all the data and significance all nice and visible. For the most part, I didn't have many difficulties conceptually on what I needed to do for this plot, though there is one factor lacking in my graph.
+
+I also built on the analyses of last week, checking if the heatmap plots would be consistent with eachother if I were to take 4 other pilot samples.
+
+On a side note, I believe when we started the internship we had an end date sometime in March. I'm not sure if it needs to be altered or not or if its just more of a formality, but that's something that just popped into my head.
+
+```{r setup, include = FALSE}
+library(phyloseq)
+library(tidyverse)
+data <- readRDS("/Users/arunbalaji/Documents/GitHub/ggplotinR/antibiotics/ps0995_4alpha_29Sep2019.rds")
+pilotsamples <- (sample_data(data) %>%
+                   filter(Subject %in% c("DBU","DBV","EAQ","EBF")))$Meas_ID
+dataprune <- prune_samples(pilotsamples, data)
+dataprune <- prune_taxa(taxa_sums(dataprune) > 0,dataprune)
+gpt <- subset_taxa(dataprune, Kingdom=="Bacteria")
+gptconfined <- prune_taxa(names(sort(taxa_sums(dataprune),TRUE)[1:331]), gpt)
+
+
+pilotsamples2 <- pilotsamples <- (sample_data(data) %>%
+                   filter(Subject %in% c("CAN","CAC","BSM","BAN")))$Meas_ID
+data2 <- prune_samples(pilotsamples2, data)
+data2 <- prune_taxa(taxa_sums(data2)>0,data2)
+
+gpt2 <- subset_taxa(data2, Kingdom == "Bacteria")
+gpt2confined <- prune_taxa(names(sort(taxa_sums(data2),TRUE)[1:331]), gpt2)
+```
+
+```{r, echo=TRUE, warning = FALSE}
+plot_heatmap(gptconfined) + facet_wrap(~Subject)
+plot_heatmap(gpt2confined)+facet_wrap(~Subject)
+```
+
+
+
+Looking at this secondary heatmap is very eye-opening because you can truly see the variance between the first four pilot subjects and the second group of 4 chosen. What I found interesting though is that for the second group of 4, there was a shared line of OTU that occured midway through the heatmaps, showing that there is some similarity between the subjects. Also, CAN and CAC share some similarity towards the top of the maps. This helps give light to the idea that there are similarity between the samples but requires a look at a greater amount of samples to realize.
+
+
+To begin with the PCoA plot, this is a very basic line of code that basically ordinates my "gpt" dataset. Subsetting the taxa for Bacteria isn't crucial to this plot though I believe I found that there is some data for which the kingdom was NA or NULL. I ordinated based on PCoA just like the plot in the study.
+
+```{r, warning = FALSE}
+gpt.ord <- ordinate(gpt, "PCoA")
+ntaxa(gpt)
+```
+
+
+This is the PCoA plot, filtered by each Subject. Initially I had some trouble with the "type" parameter, because I had it as "taxa" though eventually I figured out that it had to be "sites" or "species" to be separated by Subject. One thing that is lacking from this plot in comparison to the study is the lack of separation of pre-CP, 1st CP Treatment, etc. for each sample.
+```{r, echo = TRUE, warning = FALSE}
+plot_ordination(gpt, gpt.ord, type = "sites",color = "Subject", title ="Samples PCoA")
+```
+
+These are the plots that I'm still working on (fig1-heatmap, fig2-line).
+```{r, eval=FALSE, echo = TRUE}
+sample_data(gpt)%>% ggplot() + geom_line(aes(x = Abx_RelDay, y =))+
+  facet_wrap(~Subject)
+
+plot_heatmap(gpt, "Family") + facet_wrap(~Subject)
+```
