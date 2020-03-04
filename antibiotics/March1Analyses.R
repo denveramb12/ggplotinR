@@ -1,7 +1,7 @@
 library(phyloseq)
 library(tidyverse)
 
-data <- readRDS("/Users/arunbalaji/Documents/GitHub/ggplotinR/antibiotics/ps0995_4alpha_29Sep2019.rds")
+data <- readRDS("ps0995_4alpha_29Sep2019.rds")
 pilotsamples <- (sample_data(data) %>%
                    filter(Subject %in% c("DBU","DBV","EAQ","EBF")))$Meas_ID
 dataprune <- prune_samples(pilotsamples, data)
