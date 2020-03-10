@@ -1,0 +1,35 @@
+---
+title: "March9"
+author: "Arun Balaji"
+date: "3/9/2020"
+output: html_document
+---
+
+This week I got started on thinking of ideas of potential plots and questions I wanted to answer using the dataset. When looking at the data, initially I was intrigued by the PD, JD0, JD1, JD2, which I generated a graph for that I think could be really cool to analyze, though we need to know what the columns mean. Then, I took a stab at the alpha-diversity plots using plot_richness. I originally had some trouble choosing what alpha diversity index I wanted to use, but I settled on the Shannon Index because it accounts for both abundance and evenness.
+
+```{r setup, include=FALSE}
+library(phyloseq)
+library(tidyverse)
+data <- readRDS("/Users/arunbalaji/Documents/GitHub/ggplotinR/antibiotics/ps0995_4alpha_29Sep2019.rds")
+pilotsamples <- (sample_data(data) %>%
+                   filter(Subject %in% c("DBU","DBV","EAQ","EBF")))$Meas_ID
+dataprune <- prune_samples(pilotsamples, data)
+dataprune <- prune_taxa(taxa_sums(dataprune) > 0,dataprune) 
+
+
+```
+
+Here is the alpha-diversity plot for the four pilot subjects. I chose to use the Shannon index because it accounts for both abundance and evenness of the species present. Again, looking at the plot, it speaks to the inter-sample variability between the subjects as there was very some, but not much commonality between the subjects. 
+```{r, echo=TRUE, warning = FALSE}
+plot_richness(dataprune, measures="Shannon") + facet_wrap(~Subject)
+
+```
+
+Here is the plot, split by subject, for JD1.
+```{r, echo = TRUE,warning = FALSE}
+sample_data(dataprune)%>%
+  ggplot() + geom_point(aes(x=Abx_RelDay, y=JD1)) +   
+  geom_line(color='red',data = sample_data(dataprune), aes(x=Abx_RelDay, y=JD1)) +
+  facet_wrap(~Subject)
+```
+
